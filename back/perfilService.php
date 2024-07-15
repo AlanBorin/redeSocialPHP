@@ -114,3 +114,32 @@ function verificaSeUsuarioSegue($db, $seguidor_id, $seguido_id)
 
     return $row['segue'] > 0;
 }
+
+function atualizarPerfil($db, $usuario_id, $nome, $email, $biografia)
+{
+    $stmt = $db->prepare('UPDATE usuarios SET nome = :nome, email = :email, biografia = :biografia WHERE id = :usuario_id');
+    $stmt->bindValue(':nome', $nome, SQLITE3_TEXT);
+    $stmt->bindValue(':email', $email, SQLITE3_TEXT);
+    $stmt->bindValue(':biografia', $biografia, SQLITE3_TEXT);
+    $stmt->bindValue(':usuario_id', $usuario_id, SQLITE3_INTEGER);
+    return $stmt->execute();
+}
+
+function atualizarSenha($db, $usuario_id, $senha_atual, $nova_senha)
+{
+    $stmt = $db->prepare('SELECT senha FROM usuarios WHERE id = :usuario_id');
+    $stmt->bindValue(':usuario_id', $usuario_id, SQLITE3_INTEGER);
+    $result = $stmt->execute();
+    $usuario = $result->fetchArray(SQLITE3_ASSOC);
+
+    if (!$usuario || !password_verify($senha_atual, $usuario['senha'])) {
+        return false;
+    }
+
+    $nova_senha_hash = password_hash($nova_senha, PASSWORD_DEFAULT);
+
+    $stmt = $db->prepare('UPDATE usuarios SET senha = :nova_senha WHERE id = :usuario_id');
+    $stmt->bindValue(':nova_senha', $nova_senha_hash, SQLITE3_TEXT);
+    $stmt->bindValue(':usuario_id', $usuario_id, SQLITE3_INTEGER);
+    return $stmt->execute();
+}
