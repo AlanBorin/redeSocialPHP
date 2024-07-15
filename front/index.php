@@ -5,27 +5,16 @@ require '../back/perfilService.php';
 autenticar();
 echo "ID do usuário logado: " . $_SESSION['id'] . "<br>";
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if (isset($_POST['seguido_id'])) {
-        $seguido_id = $_POST['seguido_id'];
-        $seguidor_id = $_SESSION['id'];
-
-        $segue = verificaSeUsuarioSegue($db, $seguidor_id, $seguido_id);
-
-        if ($segue) {
-            deixarDeSeguirUsuario($db, $seguidor_id, $seguido_id);
-        } else {
-            seguirUsuario($db, $seguidor_id, $seguido_id);
-        }
-
-        header('Location: index.php');
-        exit;
-    }
-}
-
-function obterPosts($db)
+function obterPosts($db, $usuario_id)
 {
-    $stmt = $db->prepare('SELECT posts.id, posts.conteudo, posts.data_criacao, usuarios.id as usuario_id, usuarios.nome FROM posts JOIN usuarios ON posts.usuario_id = usuarios.id ORDER BY posts.data_criacao DESC');
+    $stmt = $db->prepare('
+        SELECT posts.id, posts.conteudo, posts.data_criacao, usuarios.id as usuario_id, usuarios.nome, 
+        (SELECT COUNT(*) FROM curtidas WHERE curtidas.post_id = posts.id AND curtidas.usuario_id = :usuario_id) AS curtiu 
+        FROM posts 
+        JOIN usuarios ON posts.usuario_id = usuarios.id 
+        ORDER BY posts.data_criacao DESC
+    ');
+    $stmt->bindValue(':usuario_id', $usuario_id, SQLITE3_INTEGER);
     $result = $stmt->execute();
     $posts = [];
     while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -42,7 +31,7 @@ function obterCurtidas($db, $post_id)
     return $result->fetchArray(SQLITE3_ASSOC)['total'];
 }
 
-$posts = obterPosts($db);
+$posts = obterPosts($db, $_SESSION['id']);
 ?>
 
 <!DOCTYPE html>
@@ -54,7 +43,6 @@ $posts = obterPosts($db);
     <title>Rede Social</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
 </head>
 
 <body>
@@ -98,7 +86,9 @@ $posts = obterPosts($db);
                             </p>
                             <div class="row">
                                 <div class="col-md-6">
-                                    <button class="btn btn-primary curtir-btn" data-post-id="<?php echo $post['id']; ?>">Curtir</button>
+                                    <button class="btn <?php echo $post['curtiu'] ? 'btn-danger' : 'btn-primary'; ?> curtir-btn" data-post-id="<?php echo $post['id']; ?>">
+                                        <?php echo $post['curtiu'] ? 'Descurtir' : 'Curtir'; ?>
+                                    </button>
                                 </div>
                                 <div class="col-md-6">
                                     <?php if ($_SESSION['id'] != $post['usuario_id']) : ?>
@@ -106,17 +96,9 @@ $posts = obterPosts($db);
                                             <?php
                                             $seguido = verificaSeUsuarioSegue($db, $_SESSION['id'], $post['usuario_id']);
                                             ?>
-                                            <?php if ($seguido) : ?>
-                                                <form id="form-deixar-seguir-<?php echo $post['usuario_id']; ?>" class="form-deixar-seguir" action="../back/deixarSeguir.php" method="POST">
-                                                    <input type="hidden" name="seguido_id" value="<?php echo $post['usuario_id']; ?>">
-                                                    <button type="submit" class="btn btn-danger">Deixar de Seguir <i class="bi bi-person-dash-fill"></i></button>
-                                                </form>
-                                            <?php else : ?>
-                                                <form id="form-seguir-<?php echo $post['usuario_id']; ?>" class="form-seguir" action="../back/seguir.php" method="POST">
-                                                    <input type="hidden" name="seguido_id" value="<?php echo $post['usuario_id']; ?>">
-                                                    <button type="submit" class="btn btn-primary">Seguir <i class="bi bi-person-plus-fill"></i></button>
-                                                </form>
-                                            <?php endif; ?>
+                                            <button class="btn <?php echo $seguido ? 'btn-danger' : 'btn-primary'; ?> seguir-btn" data-usuario-id="<?php echo $post['usuario_id']; ?>">
+                                                <?php echo $seguido ? 'Deixar de Seguir' : 'Seguir'; ?>
+                                            </button>
                                         </div>
                                     <?php endif; ?>
                                 </div>
@@ -141,6 +123,7 @@ $posts = obterPosts($db);
 
     <script>
         $(document).ready(function() {
+            // Função para curtir/descurtir posts
             $('.curtir-btn').click(function() {
                 var post_id = $(this).data('post-id');
                 var btn = $(this);
@@ -154,15 +137,42 @@ $posts = obterPosts($db);
                     dataType: 'json',
                     success: function(response) {
                         if (response.status == 'liked') {
+                            btn.removeClass('btn-primary').addClass('btn-danger').text('Descurtir');
                             var curtidas = parseInt($('#curtidas_' + post_id).text()) + 1;
                             $('#curtidas_' + post_id).text(curtidas);
                         } else if (response.status == 'unliked') {
+                            btn.removeClass('btn-danger').addClass('btn-primary').text('Curtir');
                             var curtidas = parseInt($('#curtidas_' + post_id).text()) - 1;
                             $('#curtidas_' + post_id).text(curtidas);
                         }
                     },
                     error: function(xhr, status, error) {
                         console.error('Erro ao curtir post:', error);
+                    }
+                });
+            });
+
+            // Função para seguir/deixar de seguir usuários
+            $('.seguir-btn').click(function() {
+                var usuario_id = $(this).data('usuario-id');
+                var btn = $(this);
+
+                $.ajax({
+                    method: 'POST',
+                    url: '../back/seguir.php',
+                    data: {
+                        seguido_id: usuario_id
+                    },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.status == 'seguido') {
+                            btn.removeClass('btn-primary').addClass('btn-danger').text('Deixar de Seguir');
+                        } else if (response.status == 'nao_seguido') {
+                            btn.removeClass('btn-danger').addClass('btn-primary').text('Seguir');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Erro ao seguir/deixar de seguir usuário:', error);
                     }
                 });
             });
