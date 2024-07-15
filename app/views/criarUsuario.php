@@ -1,5 +1,5 @@
 <?php
-require '../back/config.php';
+require '../models/config.php';
 ?>
 
 <!DOCTYPE html>
@@ -25,7 +25,7 @@ require '../back/config.php';
                             echo '<div class="alert alert-danger" role="alert">' . htmlspecialchars($_GET['error']) . '</div>';
                         }
                         ?>
-                        <form method="POST" action="/back/cadastrar_usuario.php">
+                        <form method="POST" action="../controllers/cadastrar_usuario.php">
                             <div class="form-group">
                                 <label for="email">Email:</label>
                                 <input type="email" name="email" class="form-control" required>

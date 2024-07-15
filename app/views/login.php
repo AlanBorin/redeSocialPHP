@@ -23,7 +23,7 @@
                             echo '<div class="alert alert-danger" role="alert">' . $mensagem . '</div>';
                         }
                         ?>
-                        <form method="POST" action="../back/autenticar.php">
+                        <form method="POST" action="../controllers/autenticar.php">
                             <div class="form-group">
                                 <label for="email">Email:</label>
                                 <input type="email" name="email" class="form-control" required>

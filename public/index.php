@@ -1,9 +1,8 @@
 <?php
-require '../back/config.php';
-require '../back/perfilService.php';
+require '../app/models/config.php';
+require '../app/models/perfilService.php';
 
 autenticar();
-echo "ID do usuário logado: " . $_SESSION['id'] . "<br>";
 
 function obterPosts($db, $usuario_id)
 {
@@ -56,10 +55,10 @@ $posts = obterPosts($db, $_SESSION['id']);
                     <?php } ?>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="../front/configuracoes.php">Configurações</a>
+                    <a class="nav-link" href="../app/views/configuracoes.php">Configurações</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="../back/logout.php">Sair</a>
+                    <a class="nav-link" href="../app/controllers/logout.php">Sair</a>
                 </li>
             </ul>
         </div>
@@ -73,7 +72,7 @@ $posts = obterPosts($db, $_SESSION['id']);
                     <div class="card mb-3">
                         <div class="card-body">
                             <h5 class="card-title">
-                                <a href="../front/perfil.php?usuario_id=<?php echo $post['usuario_id']; ?>">
+                                <a href="../app/views/perfil.php?usuario_id=<?php echo $post['usuario_id']; ?>">
                                     <?php echo htmlspecialchars($post['nome']); ?>
                                 </a>
                             </h5>
@@ -109,7 +108,7 @@ $posts = obterPosts($db, $_SESSION['id']);
             </div>
             <div class="col-md-4">
                 <h2>Nova Postagem</h2>
-                <form id="form-postar" method="POST" action="../back/postar.php">
+                <form id="form-postar" method="POST" action="../app/controllers/postar.php">
                     <div class="form-group">
                         <textarea name="conteudo" class="form-control" rows="3" maxlength="100" placeholder="O que você está pensando?" required></textarea>
                     </div>
@@ -123,14 +122,13 @@ $posts = obterPosts($db, $_SESSION['id']);
 
     <script>
         $(document).ready(function() {
-            // Função para curtir/descurtir posts
             $('.curtir-btn').click(function() {
                 var post_id = $(this).data('post-id');
                 var btn = $(this);
 
                 $.ajax({
                     method: 'POST',
-                    url: '../back/curtir.php',
+                    url: '../app/controllers/curtir.php',
                     data: {
                         post_id: post_id
                     },
@@ -152,14 +150,13 @@ $posts = obterPosts($db, $_SESSION['id']);
                 });
             });
 
-            // Função para seguir/deixar de seguir usuários
             $('.seguir-btn').click(function() {
                 var usuario_id = $(this).data('usuario-id');
                 var btn = $(this);
 
                 $.ajax({
                     method: 'POST',
-                    url: '../back/seguir.php',
+                    url: '../app/controllers/seguir.php',
                     data: {
                         seguido_id: usuario_id
                     },

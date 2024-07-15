@@ -1,6 +1,6 @@
 <?php
-require '../back/config.php';
-require '../back/perfilService.php';
+require '../models/config.php';
+require '../models/perfilService.php';
 
 autenticar();
 $usuario_id = $_SESSION['id'];

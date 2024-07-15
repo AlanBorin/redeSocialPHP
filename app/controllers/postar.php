@@ -1,5 +1,5 @@
 <?php
-require '../back/config.php';
+require '../models/config.php';
 autenticar();
 
 date_default_timezone_set('America/Sao_Paulo');
@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $result = $stmt->execute();
 
         if ($result) {
-            header('Location: ../front/index.php');
+            header('Location: ../../public/index.php');
             exit();
         } else {
             echo "Erro ao inserir post no banco de dados.";

@@ -1,6 +1,6 @@
 <?php
 
-require 'config.php';
+require '../models/config.php';
 
 $id = $_POST['id'];
 $novoNome = $_POST['nome'];
@@ -25,7 +25,7 @@ $usuario = $_POST;
     if(! $result){
         echo 'falha ao criar';
     }else {
-        header('Location: index.php');
+        header('Location: ../../public/index.php');
     };
 
     

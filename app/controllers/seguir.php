@@ -1,6 +1,6 @@
 <?php
-require 'config.php';
-require 'perfilService.php';
+require '../models/config.php';
+require '../models/perfilService.php';
 
 autenticar();
 

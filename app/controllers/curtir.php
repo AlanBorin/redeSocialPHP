@@ -1,5 +1,5 @@
 <?php
-require '../back/config.php';
+require '../models/config.php';
 autenticar();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

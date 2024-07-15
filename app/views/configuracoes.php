@@ -1,9 +1,9 @@
 <?php
-require '../back/config.php';
+require '../models/config.php';
 autenticar();
 
 $usuario_id = $_SESSION['id'];
-require '../back/perfilService.php';
+require '../models/perfilService.php';
 
 $perfil = obterPerfil($db, $usuario_id);
 
@@ -58,10 +58,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <?php } ?>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="../back/logout.php">Sair</a>
+                    <a class="nav-link" href="../controllers/logout.php">Sair</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="index.php">Voltar à Página Inicial</a>
+                    <a class="nav-link" href="../../public/index.php">Voltar à Página Inicial</a>
                 </li>
             </ul>
         </div>
@@ -124,12 +124,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             e.preventDefault();
 
             $.ajax({
-                url: '../back/deletarConta.php',
+                url: '../controllers/deletarConta.php',
                 method: 'POST',
                 success: function(response) {
                     response = JSON.parse(response);
                     if (response.success) {
-                        window.location.href = '../front/login.php';
+                        window.location.href = 'login.php';
                     } else {
                         alert('Erro ao deletar conta.');
                     }

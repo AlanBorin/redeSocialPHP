@@ -1,6 +1,6 @@
 <?php
 
-require 'config.php';
+require '../models/config.php';
 
 $id = $_GET['id'];
 
@@ -16,5 +16,5 @@ $id = $_GET['id'];
     if(! $result){
         echo 'falha ao criar';
     }else {
-        header('Location: index.php');
+        header('Location: ../../public/index.php');
     };

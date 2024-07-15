@@ -1,5 +1,5 @@
 <?php
-require 'config.php';
+require '../models/config.php';
 
 $nome = $_POST['nome'];
 $email = $_POST['email'];
@@ -12,7 +12,7 @@ $usuario = $result->fetchArray(SQLITE3_ASSOC);
 
 if ($usuario) {
     $error_message = 'Email já existe. Por favor, use outro email.';
-    header('Location: ../front/criarUsuario.php?error=' . urlencode($error_message));
+    header('Location: ../views/criarUsuario.php?error=' . urlencode($error_message));
     exit();
 } else {
     $senha = password_hash($senha, PASSWORD_DEFAULT);
@@ -26,7 +26,7 @@ if ($usuario) {
     if (!$result) {
         echo 'Falha ao criar usuário.';
     } else {
-        header('Location: ../front/login.php?success=' . urlencode('Cadastro realizado com sucesso. Faça login.'));
+        header('Location: ../views/login.php?success=' . urlencode('Cadastro realizado com sucesso. Faça login.'));
         exit();
     }
 }

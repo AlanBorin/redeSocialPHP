@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-require 'config.php';
+require '../models/config.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: ../front/login.php');
@@ -18,7 +18,7 @@ $result = $stmt->execute();
 $usuario = $result->fetchArray(SQLITE3_ASSOC);
 
 if (!$usuario) {
-    header('Location: ../front/login.php?msg=Usuário não encontrado');
+    header('Location: ../views/login.php?msg=Usuário não encontrado');
     exit;
 } else {
     if (password_verify($senha, $usuario['senha'])) {
@@ -27,10 +27,10 @@ if (!$usuario) {
         $_SESSION['email'] = $usuario['email'];
         $_SESSION['auth'] = true;
 
-        header('Location: ../front/index.php');
+        header('Location: ../../public/index.php');
         exit;
     } else {
-        header('Location: ../front/login.php?msg=Senha Incorreta');
+        header('Location: ../views/login.php?msg=Senha Incorreta');
         exit;
     }
 }

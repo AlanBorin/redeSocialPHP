@@ -1,5 +1,5 @@
 <?php
-require '../back/config.php';
+require '../models/config.php';
 
 if (!isset($_GET['usuario_id'])) {
     header('Location: index.php');
@@ -8,7 +8,7 @@ if (!isset($_GET['usuario_id'])) {
 
 $usuario_id = $_GET['usuario_id'];
 
-require '../back/perfilService.php';
+require '../models/perfilService.php';
 
 registrarVisita($db, $usuario_id);
 
@@ -38,7 +38,7 @@ $postagens = obterPostagensPerfil($db, $usuario_id);
                     <?php } ?>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="../back/logout.php">Sair</a>
+                    <a class="nav-link" href="../controllers/logout.php">Sair</a>
                 </li>
             </ul>
         </div>
